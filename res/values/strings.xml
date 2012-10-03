@@ -4,5 +4,6 @@
     <string name="hello_world">Hello world!</string>
     <string name="menu_settings">Settings</string>
     <string name="title_activity_memopad_actiity">メモ帳（授業）</string>
+    <string name="memodb_empty">メモが見つかりません</string>
 
 </resources>
