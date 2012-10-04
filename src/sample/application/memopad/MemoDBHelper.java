@@ -18,9 +18,8 @@ public class MemoDBHelper extends SQLiteOpenHelper {
 
 	@Override
 	public void onCreate(SQLiteDatabase db) {
-		String sql = "CREATE TABLE memoDB ("
-				+ android.provider.BaseColumns._ID
-				+ " INTEGER PRIMARY KEY AUTOINCREMENT, titile Text, memo Text);";
+		String sql = "CREATE TABLE memoDB (" + android.provider.BaseColumns._ID
+				+ " INTEGER PRIMARY KEY AUTOINCREMENT, title Text, memo Text);";
 		db.execSQL(sql);
 	}
 
