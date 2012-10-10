@@ -1,5 +1,9 @@
 package sample.application.memopad;
 
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.text.DateFormat;
 import java.util.Date;
 
@@ -9,6 +13,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.os.Environment;
 import android.text.Editable;
 import android.text.Selection;
 import android.text.TextWatcher;
@@ -16,10 +21,13 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.EditText;
+import android.widget.Toast;
 
 public class MemopadActivity extends Activity {
 
 	boolean memoChanged = false;
+	String fn;
+	String encode = "SHIFT-JIS";
 
 	@Override
 	protected void onStop() {
@@ -94,6 +102,20 @@ public class MemopadActivity extends Activity {
 			}
 			et.setText("");
 			break;
+		case R.id.menu_import:
+			if (Environment.MEDIA_MOUNTED.equals(Environment
+					.getExternalStorageState())) {
+				if (memoChanged) {
+					saveMemo();
+				}
+				i = new Intent(this, FilePicker.class);
+				startActivityForResult(i, 1);
+			} else {
+				Toast toast = Toast.makeText(this,
+						R.string.toast_no_external_storage, 1000);
+				toast.show();
+			}
+			break;
 		}
 		return super.onOptionsItemSelected(item);
 	}
@@ -107,6 +129,13 @@ public class MemopadActivity extends Activity {
 			switch (requestCode) {
 			case 0:
 				et.setText(data.getStringExtra("text"));
+				break;
+			case 1:
+				fn = data.getStringExtra("fn");
+				if (fn.length() > 0) {
+					et.setText(readFile());
+					memoChanged = false;
+				}
 				break;
 			}
 		}
@@ -132,5 +161,30 @@ public class MemopadActivity extends Activity {
 			db.insertOrThrow("memoDB", null, values);
 			memos.close();
 		}
+	}
+
+	String readFile() {
+		String str = "";
+		String l = null;
+
+		if (fn != null) {
+			BufferedReader br = null;
+
+			try {
+				br = new BufferedReader(new InputStreamReader(
+						new FileInputStream(fn), encode));
+				do {
+					l = br.readLine();
+					if (l != null) {
+						str = str + l + "\n";
+					}
+				} while (l != null);
+				br.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+
+		return str;
 	}
 }

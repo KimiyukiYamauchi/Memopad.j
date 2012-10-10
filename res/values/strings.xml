@@ -14,5 +14,12 @@
     <string name="button_cancel">キャンセル</string>
     <string name="button_search">検索</string>
     <string name="hint_search">検索する文字列を入力します</string>
+    <string name="button_up">上のフォルダー</string>
+    <string name="menu_import">ファイルの読み込み</string>
+    <string name="menu_export">ファイルの保存</string>
+    <string name="filelist_empty">ファイルがありません</string>
+    <string name="toast_no_external_storage">外部ストレージが使用できません</string>
+    <string name="menu_encode">エンコード</string>
+    <string name="menu_sjis">SHIFT_JIS</string>
 
 </resources>
