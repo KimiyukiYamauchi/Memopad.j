@@ -1,9 +1,13 @@
 package sample.application.memopad;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.text.DateFormat;
 import java.util.Date;
 
@@ -38,6 +42,8 @@ public class MemopadActivity extends Activity {
 		editor.putString("memo", et.getText().toString());
 		editor.putInt("cursor", Selection.getSelectionStart(et.getText()));
 		editor.putBoolean("memoChanged", memoChanged);
+		editor.putString("fn", fn);
+		editor.putString("encode", encode);
 		editor.commit();
 	}
 
@@ -51,6 +57,8 @@ public class MemopadActivity extends Activity {
 		et.setText(pref.getString("memo", ""));
 		et.setSelection(pref.getInt("cursor", 0));
 		memoChanged = pref.getBoolean("memoChanged", false);
+		fn = pref.getString(fn, "");
+		encode = pref.getString("encode", "SHIFT-JIS");
 
 		TextWatcher tw = new TextWatcher() {
 
@@ -77,6 +85,9 @@ public class MemopadActivity extends Activity {
 		MenuInflater mi = getMenuInflater();
 		mi.inflate(R.menu.menu, menu);
 		getMenuInflater().inflate(R.menu.main, menu);
+		if (encode.equals("SHIFT-JIS")) {
+			menu.findItem(R.id.menu_sjis).setChecked(true);
+		}
 		return true;
 	}
 
@@ -101,6 +112,7 @@ public class MemopadActivity extends Activity {
 				memoChanged = false;
 			}
 			et.setText("");
+			fn = "";
 			break;
 		case R.id.menu_import:
 			if (Environment.MEDIA_MOUNTED.equals(Environment
@@ -116,6 +128,25 @@ public class MemopadActivity extends Activity {
 				toast.show();
 			}
 			break;
+		case R.id.menu_export:
+			if (Environment.MEDIA_MOUNTED.equals(Environment
+					.getExternalStorageState())) {
+				writeFile();
+				memoChanged = false;
+			} else {
+				Toast toast = Toast.makeText(this,
+						R.string.toast_no_external_storage, 1000);
+				toast.show();
+			}
+		case R.id.menu_sjis:
+			if (item.isChecked()) {
+				item.setChecked(false);
+				encode = "UTF-8";
+			} else {
+				item.setChecked(true);
+				encode = "SHIFT-JIS";
+			}
+			break;
 		}
 		return super.onOptionsItemSelected(item);
 	}
@@ -129,6 +160,8 @@ public class MemopadActivity extends Activity {
 			switch (requestCode) {
 			case 0:
 				et.setText(data.getStringExtra("text"));
+				memoChanged = false;
+				fn = "";
 				break;
 			case 1:
 				fn = data.getStringExtra("fn");
@@ -186,5 +219,31 @@ public class MemopadActivity extends Activity {
 		}
 
 		return str;
+	}
+
+	void writeFile() {
+		EditText et = (EditText) findViewById(R.id.editText1);
+		String memo = et.getText().toString();
+
+		if (fn.length() == 0) {
+			String dn = Environment.getExternalStorageDirectory() + "/text/";
+			fn = memo.replaceAll("\\\\|\\.|\\/|:|\\*|\\?|\"|<|>|\\n|\\|", " ")
+					.trim();
+			fn = dn + fn.substring(0, Math.min(fn.length(), 12)) + ".txt";
+			File dir = new File(dn);
+			if (!dir.exists()) {
+				dir.mkdir();
+			}
+		}
+
+		BufferedWriter bw1;
+		try {
+			bw1 = new BufferedWriter(new OutputStreamWriter(
+					new FileOutputStream(fn), encode));
+			bw1.write(memo.replace("\n", "\r\n"));
+			bw1.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 }

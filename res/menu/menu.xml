@@ -4,6 +4,8 @@
     <item android:id="@+id/menu_open" android:icon="@android:drawable/ic_menu_set_as" android:title="@string/menu_open"></item>
     <item android:id="@+id/menu_new" android:icon="@android:drawable/ic_menu_add" android:title="@string/menu_new"></item>
     <item android:id="@+id/menu_import" android:title="@string/menu_import"></item>
+    <item android:id="@+id/menu_export" android:title="@string/menu_export"></item>
+    <item android:id="@+id/menu_sjis" android:checkable="true" android:title="@string/menu_sjis"></item>
     
 
 </menu>
